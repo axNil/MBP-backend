@@ -2,6 +2,7 @@ package org.example;
 
 
 
+import apikey.APIKey;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -73,7 +74,7 @@ public class APIRunner {
             JsonNode jn = new JsonNode(s);
             String url = "https://api.openai.com/v1/completions";
             Map<String, String> map = new HashMap<>();
-            map.put("Authorization", "Bearer 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");
+            map.put("Authorization", APIKey.apiKey);
             map.put("Content-Type", "application/json");
             response = Unirest.post(url)
                     .headers(map)
