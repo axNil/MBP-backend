@@ -192,6 +192,6 @@ $RECYCLE.BIN/
 *.lnk
 
 # Experiment
-src/main/java/apikey/*
+src/main/java/apikey/APIKey.java
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,intellij+all,java,maven
