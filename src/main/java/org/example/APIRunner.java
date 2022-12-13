@@ -5,6 +5,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import io.javalin.Javalin;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -66,27 +67,10 @@ public class APIRunner {
                   "max_tokens": 500,
                   "temperature": 1
                 }""";
-        try {
-            HttpResponse<JsonNode> response;
-            JsonNode jn = new JsonNode(s);
-            String url = "https://api.openai.com/v1/completions";
-            Map<String, String> map = new HashMap<>();
-            map.put("Authorization", APIKey.apiKey);
-            map.put("Content-Type", "application/json");
-            response = Unirest.post(url)
-                    .headers(map)
-                    .body(s)
-                    .asJson();
 
-            System.out.println(response.getBody());
-            System.out.println();
-            Unirest.shutdown();
-        } catch (UnirestException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        OpenAICaller oc = new OpenAICaller();
+
     }
+
+
 }
