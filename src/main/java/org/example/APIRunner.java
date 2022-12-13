@@ -1,7 +1,5 @@
 package org.example;
 
-
-
 import apikey.APIKey;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
