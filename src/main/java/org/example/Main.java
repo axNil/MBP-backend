@@ -13,6 +13,9 @@ public class Main {
             });
         }).start(5008);
 
+        app.get("v1/unicorns/", (ctx) -> {
+            runner.getAllUnicorns(ctx);
+        });
         /*
         app.get("/", runner::getAll);
 

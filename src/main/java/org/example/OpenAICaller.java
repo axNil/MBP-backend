@@ -15,7 +15,7 @@ public class OpenAICaller {
 
     public OpenAICaller() {
         map = new HashMap<>();
-        map.put("Authorization", APIKey.apiKey);
+        map.put("Authorization", "Bearer " + APIKey.APIKEY);
         map.put("Content-Type", "application/json");
     }
     public String getDescription(String message) {

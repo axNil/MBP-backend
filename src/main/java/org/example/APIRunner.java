@@ -6,15 +6,35 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import io.javalin.Javalin;
+import io.javalin.http.Context;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class APIRunner {
+    private UnicornCaller uc;
+    private OpenAICaller oc;
+
+    public APIRunner() {
+        oc = new OpenAICaller();
+        uc = new UnicornCaller();
+    }
+
+
+    public void getAllUnicorns(Context ctx) {
+        ctx.json(uc.getAll());
+    }
+
+
+
+
+
+
+/*
     public static void main(String[] args) {
-        
-        /*
+
+
         String url = "https://api.openai.com/v1/completions";
         CloseableHttpClient httpclient = null;
         HttpPost httpPost = null;
@@ -59,7 +79,7 @@ public class APIRunner {
             e.printStackTrace();
         }
     }
-    */
+
         String s = """
                 {
                   "model": "text-ada-001",
@@ -68,9 +88,8 @@ public class APIRunner {
                   "temperature": 1
                 }""";
 
-        OpenAICaller oc = new OpenAICaller();
+
 
     }
-
-
+    */
 }
