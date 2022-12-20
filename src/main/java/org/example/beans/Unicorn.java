@@ -1,6 +1,5 @@
 package org.example.beans;
 
-import java.sql.Timestamp;
 public class Unicorn {
     public int id = 0;
     public String name = "";

@@ -9,6 +9,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 
 import org.example.beans.SmallBoy;
@@ -110,7 +113,7 @@ public class UnicornCaller {
                     System.out.println("Jsonfail with unicorn");
                 }
             } else {
-                System.out.println("unicorns getAll failed");
+                System.out.println("unicorns get failed");
                 System.out.println("statuscode: " + status.getStatusCode());
             }
 
@@ -122,10 +125,35 @@ public class UnicornCaller {
         return unicorn;
     }
 
-    public static void main(String[] args) {
-        UnicornCaller u = new UnicornCaller();
-        u.getAll();
-    }
+    public void post(String body) {
+        HttpClient httpclient = null;
+        HttpPost httpPost = null;
+        HttpResponse response = null;
+        StatusLine status = null;
+        HttpEntity entity = null;
+        InputStream data = null;
+        Reader reader = null;
+        StringEntity stringEntity = null;
+        try {
+            httpclient = HttpClients.createDefault();
+            httpPost = new HttpPost(url);
+            stringEntity = new StringEntity(body);
+            httpPost.setEntity(stringEntity);
+            response = httpclient.execute(httpPost);
+            status = response.getStatusLine();
 
+            if (status.getStatusCode() == 200) {
+                System.out.println("post went well");
+            } else {
+                System.out.println("unicorns post failed");
+                System.out.println("statuscode: " + status.getStatusCode());
+            }
+
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
 }

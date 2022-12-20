@@ -2,7 +2,7 @@ package org.example;
 
 import io.javalin.Javalin;
 
-public class Main {
+public class Server {
     public static void main(String[] args) {
         APIRunner runner = new APIRunner();
         Javalin app = Javalin.create(config -> {
@@ -15,10 +15,12 @@ public class Main {
 
         app.get("v1/unicorns/", (ctx) -> {
             runner.getAllUnicorns(ctx);
+            System.out.println("Get all unicorns was performed");
         });
 
         app.get("v1/unicorns/{id}", (ctx) -> {
             runner.getUnicorn(ctx);
+            System.out.println("Get single unicorn was performed");
         });
 
         app.get("v1/unicorns/pictures/{id}", (ctx) -> {
@@ -26,7 +28,7 @@ public class Main {
         });
 
         app.post("v1/unicorns/", (ctx) -> {
-
+            runner.postUnicorn(ctx);
         });
 
         app.post("v1/unicorns/search", (ctx) -> {

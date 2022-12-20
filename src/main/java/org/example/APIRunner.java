@@ -36,6 +36,10 @@ public class APIRunner {
         ctx.json(uc.get(ctx.pathParam("id")));
     }
 
+    public void postUnicorn(Context ctx) {
+        uc.post(ctx.body());
+    }
+
 
 
 
