@@ -16,6 +16,24 @@ public class Main {
         app.get("v1/unicorns/", (ctx) -> {
             runner.getAllUnicorns(ctx);
         });
+
+        app.get("v1/unicorns/{id}", (ctx) -> {
+            runner.getUnicorn(ctx);
+        });
+
+        app.get("v1/unicorns/pictures/{id}", (ctx) -> {
+
+        });
+
+        app.post("v1/unicorns/", (ctx) -> {
+
+        });
+
+        app.post("v1/unicorns/search", (ctx) -> {
+
+        });
+
+
         /*
         app.get("/", runner::getAll);
 
@@ -32,5 +50,6 @@ public class Main {
         });
 
          */
+
     }
 }

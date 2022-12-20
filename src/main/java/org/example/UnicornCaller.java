@@ -2,6 +2,7 @@ package org.example;
 
 import com.google.gson.Gson;
 
+import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -12,13 +13,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.example.beans.SmallBoy;
 import org.example.beans.Unicorn;
 
-import org.json.JSONObject;
+import java.io.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,8 +23,8 @@ public class UnicornCaller {
 
     public UnicornCaller(){}
 
-    public List<Unicorn> getAll() {
-        List<Unicorn> unicorns = new ArrayList<>();
+    public List<SmallBoy> getAll() {
+        List<SmallBoy> unicorns = new ArrayList<>();
         String url = "http://unicorns.idioti.se/";
 
         Gson gson = new Gson();
@@ -41,10 +38,11 @@ public class UnicornCaller {
         Reader reader = null;
 
         SmallBoy unicorn = null;
-
+        Type type = new TypeToken<ArrayList<SmallBoy>>(){}.getType();
         try {
             httpclient = HttpClients.createDefault();
             httpGet = new HttpGet(url);
+            httpGet.addHeader("Accept", "application/json");
             response = httpclient.execute(httpGet);
             status = response.getStatusLine();
 
@@ -54,10 +52,8 @@ public class UnicornCaller {
 
                 try {
                     reader = new InputStreamReader(data);
-                    unicorn = gson.fromJson(reader, SmallBoy.class);
-                    // göra om alla länkar i details så det passar in på vårat API istället?
-                    // kanske bara skicka vidare hela jsonskiten?
-                    // varför packa upp respons och baka ihop det igen?
+                    unicorns = gson.fromJson(reader, type);
+
 
 
                 }   catch (Exception e) {
@@ -77,4 +73,15 @@ public class UnicornCaller {
 
         return unicorns;
     }
+
+    public Object get(String id) {
+
+    }
+
+    public static void main(String[] args) {
+        UnicornCaller u = new UnicornCaller();
+        u.getAll();
+    }
+
+
 }

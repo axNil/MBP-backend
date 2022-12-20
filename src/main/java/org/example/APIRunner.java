@@ -7,9 +7,11 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import org.example.beans.SmallBoy;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class APIRunner {
@@ -23,7 +25,15 @@ public class APIRunner {
 
 
     public void getAllUnicorns(Context ctx) {
-        ctx.json(uc.getAll());
+        List<SmallBoy> smallBoys = uc.getAll();
+        for (SmallBoy s : smallBoys) {
+            s.details = "http://localhost:5008/v1/unicorns/" + s.id;
+        }
+        ctx.json(smallBoys);
+    }
+
+    public void getUnicorn(Context ctx) {
+        ctx.json(uc.get(ctx.pathParam("id")));
     }
 
 
