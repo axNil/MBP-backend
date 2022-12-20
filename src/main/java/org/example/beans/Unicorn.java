@@ -7,7 +7,7 @@ public class Unicorn {
     public String description = "";
     public String reportedBy = "";
     public Location spottedWhere = new Location();
-    public Timestamp spottedWhen = new Timestamp(0);
+    public String spottedWhen = "";
     public String image = "";
 
     public Unicorn() {}

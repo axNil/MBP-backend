@@ -2,6 +2,7 @@ package org.example;
 
 import com.google.gson.Gson;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -20,14 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UnicornCaller {
+    private Gson gson;
+    String url;
 
-    public UnicornCaller(){}
+    public UnicornCaller(){
+        gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+        url = "http://unicorns.idioti.se/";
+    }
 
     public List<SmallBoy> getAll() {
         List<SmallBoy> unicorns = new ArrayList<>();
-        String url = "http://unicorns.idioti.se/";
-
-        Gson gson = new Gson();
 
         HttpClient httpclient = null;
         HttpGet httpGet = null;
@@ -71,11 +74,52 @@ public class UnicornCaller {
             e.printStackTrace();
         }
 
+
         return unicorns;
     }
 
-    public Object get(String id) {
+    public Unicorn get(String id) {
+        Unicorn unicorn = new Unicorn();
 
+        HttpClient httpclient = null;
+        HttpGet httpGet = null;
+        HttpResponse response = null;
+        StatusLine status = null;
+        HttpEntity entity = null;
+        InputStream data = null;
+        Reader reader = null;
+
+        try {
+            httpclient = HttpClients.createDefault();
+            httpGet = new HttpGet(url + id);
+            httpGet.addHeader("Accept", "application/json");
+            response = httpclient.execute(httpGet);
+            status = response.getStatusLine();
+
+            if (status.getStatusCode() == 200) {
+                entity = response.getEntity();
+                data = entity.getContent();
+
+                try {
+                    reader = new InputStreamReader(data);
+
+                    unicorn = gson.fromJson(reader, Unicorn.class);
+
+                }   catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("Jsonfail with unicorn");
+                }
+            } else {
+                System.out.println("unicorns getAll failed");
+                System.out.println("statuscode: " + status.getStatusCode());
+            }
+
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return unicorn;
     }
 
     public static void main(String[] args) {
