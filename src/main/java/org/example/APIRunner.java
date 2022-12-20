@@ -40,6 +40,10 @@ public class APIRunner {
         uc.post(ctx.body());
     }
 
+    public void searchUnicorn(Context ctx) {
+        ctx.json(oc.searchUnicorn(ctx.body()));
+    }
+
 
 
 
