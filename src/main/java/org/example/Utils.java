@@ -18,6 +18,7 @@ public class Utils {
     }
 
     public static String createDescriptionQuery(UnicornInfo unicornInfo) {
+
         return "";
     }
 }

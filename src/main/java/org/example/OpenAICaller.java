@@ -21,10 +21,9 @@ import java.io.*;
 import java.util.Map;
 
 public class OpenAICaller {
-    Map<String, String> map;
     private final String textUrl;
     private final String imageUrl;
-    private Gson gson;
+    private final Gson gson;
 
     public OpenAICaller() {
         textUrl = "https://api.openai.com/v1/completions";
