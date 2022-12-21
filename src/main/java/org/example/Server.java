@@ -13,11 +13,13 @@ public class Server {
             });
         }).start(5008);
 
+        //Get all unicorns from database
         app.get("v1/unicorns/", (ctx) -> {
             runner.getAllUnicorns(ctx);
             System.out.println("Get all unicorns was performed");
         });
 
+        //Get a single unicorn from id
         app.get("v1/unicorns/{id}", (ctx) -> {
             runner.getUnicorn(ctx);
             System.out.println("Get single unicorn was performed");
@@ -27,31 +29,15 @@ public class Server {
 
         });
 
+        //Add unicorn to database
         app.post("v1/unicorns/", (ctx) -> {
             runner.postUnicorn(ctx);
         });
 
+        //Acquire new unicorn from openAI
         app.post("v1/unicorns/search", (ctx) -> {
-
+            runner.searchUnicorn(ctx);
         });
-
-
-        /*
-        app.get("/", runner::getAll);
-
-        app.get("/{id}", (ctx) -> {
-            runner.getId(ctx);
-        });
-
-        app.post("/", (ctx) -> {
-            runner.post(ctx);
-        });
-
-        app.put("/{id}", (ctx) -> {
-            runner.putId(ctx);
-        });
-
-         */
 
     }
 }
