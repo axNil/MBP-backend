@@ -12,6 +12,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
+import org.example.beans.ImageUrl;
 import org.example.beans.UnicornInfo;
 import org.example.beans.UnicornNoID;
 
@@ -72,6 +73,63 @@ public class OpenAICaller {
         System.out.println("desc: " + desc);
         System.out.println("url: " + ur);
         System.out.println((System.currentTimeMillis()-start)/1000);
+    }
+
+    public ImageUrl[] getMultipleImages(String message) {
+        HttpClient httpclient = null;
+        HttpPost httpPost = null;
+        HttpResponse response = null;
+        StatusLine status = null;
+        HttpEntity entity = null;
+        InputStream data = null;
+        Reader reader = null;
+        ImageUrl[] imgUrls;
+        int amountOfImages = 2;
+
+        try {
+            httpclient = HttpClients.createDefault();
+            httpPost = new HttpPost(imageUrl);
+            httpPost.addHeader("Content-Type", "application/json");
+            httpPost.addHeader("Authorization", "Bearer " + APIKey.APIKEY);
+            httpPost.setEntity(new StringEntity(message, "UTF-8"));
+            response = httpclient.execute(httpPost);
+            status = response.getStatusLine();
+            imgUrls = new ImageUrl[amountOfImages];
+            if (status.getStatusCode() == 200) {
+                entity = response.getEntity();
+                data = entity.getContent();
+
+                try {
+                    reader = new InputStreamReader(data);
+                    JsonReader jr = gson.newJsonReader(reader);
+                    jr.beginObject();
+                    for (int i = 0; i < 3; i++) {
+                        jr.skipValue();
+                    }
+                    jr.beginArray();
+                    for (int i = 0; i < amountOfImages; i++) {
+                        jr.beginObject();
+                        jr.skipValue();
+                        imgUrls[i] = new ImageUrl(jr.nextString().trim());
+                        jr.endObject();
+                    }
+                    return imgUrls;
+
+                }   catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("Jsonfail with openai getMultipleImage");
+                }
+            } else {
+                System.out.println("openai getMultipleImage failed");
+                System.out.println("statuscode: " + status.getStatusCode());
+            }
+
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private String getText(String message) {
@@ -176,4 +234,6 @@ public class OpenAICaller {
         }
         return "";
     }
+
+
 }
