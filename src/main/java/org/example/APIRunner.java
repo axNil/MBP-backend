@@ -30,18 +30,53 @@ public class APIRunner {
             ctx.json(smallBoys);
         } catch (IllegalStateException | IOException | JsonIOException e) {
             ctx.status(500);
+            ctx.json(new Error("Server no compute"));
         } catch (JsonSyntaxException e) {
             ctx.status(400);
-            ctx.json(new Error("Invalid JSON format"));
+            ctx.json(new Error("Bad request"));
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json(new Error("Server no compute"));
+            System.out.println("Something weird happened");
+            System.out.println(e.getMessage());
         }
     }
 
     public void getUnicorn(Context ctx) {
-        ctx.json(uc.get(ctx.pathParam("id")));
+        try {
+            ctx.json(uc.get(ctx.pathParam("id")));
+
+        } catch (IllegalStateException | IOException | JsonIOException e) {
+            ctx.status(500);
+            ctx.json(new Error("Server no compute"));
+        } catch (JsonSyntaxException e) {
+            ctx.status(404);
+            ctx.json(new Error("No unicorn with this ID exists"));
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json(new Error("Server no compute"));
+            System.out.println("Something weird happened");
+            System.out.println(e.getMessage());
+        }
     }
 
     public void postUnicorn(Context ctx) {
-        uc.post(ctx.body());
+        try {
+            uc.post(ctx.body());
+        } catch (IllegalStateException | IOException | JsonIOException e) {
+            ctx.status(500);
+            ctx.json(new Error("Server no compute"));
+        } catch (JsonSyntaxException e) {
+            ctx.status(400);
+            ctx.json(new Error(e.getMessage()));
+            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json(new Error("Server no compute"));
+            System.out.println("Something weird happened");
+            System.out.println(e.getMessage());
+        }
     }
 
     public void searchUnicorn(Context ctx) {
@@ -49,8 +84,12 @@ public class APIRunner {
     }
 
     public void getMorePictures(Context ctx) {
-        Unicorn unicorn = uc.get(ctx.pathParam("id"));
+        try {
+            Unicorn unicorn = uc.get(ctx.pathParam("id"));
+            ctx.json(oc.getMultipleImages(Utils.createMultiImageQuery(unicorn)));
+        } catch (Exception e) {
 
-        ctx.json(oc.getMultipleImages(Utils.createMultiImageQuery(unicorn)));
+        }
+
     }
 }

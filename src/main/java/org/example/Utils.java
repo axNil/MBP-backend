@@ -1,9 +1,13 @@
 package org.example;
 
+import com.google.gson.JsonSyntaxException;
 import org.example.beans.Location;
 import org.example.beans.Unicorn;
 import org.example.beans.UnicornInfo;
+import org.example.beans.UnicornNoID;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
 public class Utils {
@@ -23,7 +27,7 @@ public class Utils {
         String str = String.format(Locale.US,"Generera en beskrivning från en encyklopedi av en sorts enhörning som heter %s." +
                         " Enhörningen har följande attribut: Färg: %s, hornet är %s." +
                         " Enhörningens beteende är beskrivet som: %s." +
-                        " Inkludera information om hur enhörningen har anpassat sig till sin miljö kring %s"
+                        " Inkludera information om hur enhörningen har anpassat sig till sin miljö kring %s."
                 , name, unicornInfo.color, unicornInfo.horn, unicornInfo.behaviour, unicornInfo.spottedWhere.name);
 
         return String.format("""
@@ -63,5 +67,23 @@ public class Utils {
                 """, str);
     }
 
-
+    public static void unicornPostValidator(UnicornNoID unicorn) {
+        StringBuilder sb = new StringBuilder();
+        if (unicorn.name.isEmpty()) sb.append("Name is missing\n");
+        if (unicorn.reportedBy.isEmpty()) sb.append("Reported by is missing\n");
+        if (unicorn.description.isEmpty()) sb.append("Description is missing\n");
+        if (unicorn.image.isEmpty()) sb.append("Image url is missing\n");
+        if (unicorn.spottedWhere.name.isEmpty()) sb.append("Location name is missing\n");
+        if (unicorn.spottedWhere.lon < -180.0 || unicorn.spottedWhere.lon > 180.0) sb.append("Longitude is invalid\n");
+        if (unicorn.spottedWhere.lat < -90.0 || unicorn.spottedWhere.lat > 90.0) sb.append("Latitude is invalid\n");
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        try {
+            df.parse(unicorn.spottedWhen);
+        } catch (DateTimeParseException e) {
+            sb.append("Invalid or missing date");
+        }
+        if (!sb.isEmpty()) {
+            throw new JsonSyntaxException(sb.toString());
+        }
+    }
 }

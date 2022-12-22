@@ -19,6 +19,7 @@ import org.apache.http.impl.client.HttpClients;
 
 import org.example.beans.SmallBoy;
 import org.example.beans.Unicorn;
+import org.example.beans.UnicornNoID;
 
 import java.io.*;
 
@@ -66,14 +67,14 @@ public class UnicornCaller {
         } else {
             System.out.println("unicorns getAll failed");
             System.out.println("statuscode: " + status.getStatusCode());
-            throw new JsonSyntaxException("Ivalid shit"); //change this text later.
+            throw new IOException();
         }
 
 
         return unicorns;
     }
 
-    public Unicorn get(String id) {
+    public Unicorn get(String id) throws IllegalStateException, IOException, JsonSyntaxException, JsonIOException {
         Unicorn unicorn = new Unicorn();
 
         HttpClient httpclient = null;
@@ -84,40 +85,29 @@ public class UnicornCaller {
         InputStream data = null;
         Reader reader = null;
 
-        try {
-            httpclient = HttpClients.createDefault();
-            httpGet = new HttpGet(url + id);
-            httpGet.addHeader("Accept", "application/json");
-            response = httpclient.execute(httpGet);
-            status = response.getStatusLine();
+    
+        httpclient = HttpClients.createDefault();
+        httpGet = new HttpGet(url + id);
+        httpGet.addHeader("Accept", "application/json");
+        response = httpclient.execute(httpGet);
+        status = response.getStatusLine();
 
-            if (status.getStatusCode() == 200) {
-                entity = response.getEntity();
-                data = entity.getContent();
-
-                try {
-                    reader = new InputStreamReader(data);
-
-                    unicorn = gson.fromJson(reader, Unicorn.class);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("Jsonfail with unicorn");
-                }
-            } else {
-                System.out.println("unicorns get failed");
-                System.out.println("statuscode: " + status.getStatusCode());
-            }
-
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if (status.getStatusCode() == 200) {
+            entity = response.getEntity();
+            data = entity.getContent();
+            
+            reader = new InputStreamReader(data);
+            unicorn = gson.fromJson(reader, Unicorn.class);
+        
+        } else {
+            System.out.println("unicorns get failed");
+            System.out.println("statuscode: " + status.getStatusCode());
+            throw new JsonSyntaxException("Invalid request");
         }
         return unicorn;
     }
 
-    public void post(String body) {
+    public void post(String body) throws IllegalStateException, IOException, JsonSyntaxException, JsonIOException {
         HttpClient httpclient = null;
         HttpPost httpPost = null;
         HttpResponse response = null;
@@ -126,26 +116,25 @@ public class UnicornCaller {
         InputStream data = null;
         Reader reader = null;
         StringEntity stringEntity = null;
-        try {
-            httpclient = HttpClients.createDefault();
-            httpPost = new HttpPost(url);
-            stringEntity = new StringEntity(body);
-            httpPost.setEntity(stringEntity);
-            response = httpclient.execute(httpPost);
-            status = response.getStatusLine();
 
-            if (status.getStatusCode() == 200) {
-                System.out.println("post went well");
-            } else {
-                System.out.println("unicorns post failed");
-                System.out.println("statuscode: " + status.getStatusCode());
-            }
+        //Validate that all fields exists
+        Utils.unicornPostValidator(gson.fromJson(body, UnicornNoID.class));
 
+        httpclient = HttpClients.createDefault();
+        httpPost = new HttpPost(url);
+        stringEntity = new StringEntity(body, "UTF-8");
+        httpPost.setEntity(stringEntity);
 
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        response = httpclient.execute(httpPost);
+        status = response.getStatusLine();
+
+        if (status.getStatusCode() == 200) {
+            System.out.println("post went well");
+        } else {
+            System.out.println("unicorns post failed");
+            System.out.println("statuscode: " + status.getStatusCode());
         }
+
     }
 
 }

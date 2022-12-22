@@ -7,5 +7,4 @@ public class UnicornNoID {
     public Location spottedWhere = new Location();
     public String spottedWhen = "";
     public String image = "";
-
 }
