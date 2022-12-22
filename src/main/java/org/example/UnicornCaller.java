@@ -3,10 +3,13 @@ package org.example;
 import com.google.gson.Gson;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -27,12 +30,12 @@ public class UnicornCaller {
     private Gson gson;
     String url;
 
-    public UnicornCaller(){
+    public UnicornCaller() {
         gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
         url = "http://unicorns.idioti.se/";
     }
 
-    public List<SmallBoy> getAll() {
+    public List<SmallBoy> getAll() throws IllegalStateException, IOException, JsonSyntaxException, JsonIOException {
         List<SmallBoy> unicorns = new ArrayList<>();
 
         HttpClient httpclient = null;
@@ -44,37 +47,26 @@ public class UnicornCaller {
         Reader reader = null;
 
         SmallBoy unicorn = null;
-        Type type = new TypeToken<ArrayList<SmallBoy>>(){}.getType();
-        try {
-            httpclient = HttpClients.createDefault();
-            httpGet = new HttpGet(url);
-            httpGet.addHeader("Accept", "application/json");
-            response = httpclient.execute(httpGet);
-            status = response.getStatusLine();
+        Type type = new TypeToken<ArrayList<SmallBoy>>() {
+        }.getType();
 
-            if (status.getStatusCode() == 200) {
-                entity = response.getEntity();
-                data = entity.getContent();
+        httpclient = HttpClients.createDefault();
+        httpGet = new HttpGet(url);
+        httpGet.addHeader("Accept", "application/json");
+        response = httpclient.execute(httpGet);
+        status = response.getStatusLine();
 
-                try {
-                    reader = new InputStreamReader(data);
-                    unicorns = gson.fromJson(reader, type);
+        if (status.getStatusCode() == 200) {
+            entity = response.getEntity();
+            data = entity.getContent();
 
+            reader = new InputStreamReader(data);
+            unicorns = gson.fromJson(reader, type);
 
-
-                }   catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("Jsonfail with unicorn");
-                }
-            } else {
-                System.out.println("unicorns getAll failed");
-                System.out.println("statuscode: " + status.getStatusCode());
-            }
-
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } else {
+            System.out.println("unicorns getAll failed");
+            System.out.println("statuscode: " + status.getStatusCode());
+            throw new JsonSyntaxException("Ivalid shit"); //change this text later.
         }
 
 
@@ -108,7 +100,7 @@ public class UnicornCaller {
 
                     unicorn = gson.fromJson(reader, Unicorn.class);
 
-                }   catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     System.out.println("Jsonfail with unicorn");
                 }
