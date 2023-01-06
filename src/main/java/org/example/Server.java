@@ -3,6 +3,10 @@ package org.example;
 import io.javalin.Javalin;
 import io.javalin.plugin.bundled.CorsPluginConfig;
 
+/**
+ * Main class where all the requests are being distributed to the
+ * correct endpoint and the answers are being sent back to the client
+ */
 public class Server {
     public static void main(String[] args) {
         APIRunner runner = new APIRunner();
@@ -24,6 +28,7 @@ public class Server {
             runner.getUnicorn(ctx);
         });
 
+        //Acquire two more pictures from unicorn id
         app.get("v1/unicorns/pictures/{id}", (ctx) -> {
             System.out.println("Get more pictures was performed");
             runner.getMorePictures(ctx);

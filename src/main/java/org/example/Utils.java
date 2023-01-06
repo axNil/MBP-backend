@@ -10,8 +10,17 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
 
+/**
+ * Util methods to help with string building and error handling.
+ */
 public class Utils {
 
+    /**
+     * Constructs a request body that contains a query for a name of a unicorn based on its location.
+     * The body is constructed to meet OpenAI specifications.
+     * @param loc Location of the unicorn
+     * @return Request body
+     */
     public static String createNameQuery(Location loc) {
         return String.format(Locale.US,"""
                 {
@@ -23,6 +32,13 @@ public class Utils {
                 """, loc.lon, loc.lat);
     }
 
+    /**
+     * Constructs a request body that contains a query for a description of a unicorn based on its attributes.
+     * The body is constructed to meet OpenAI specifications.
+     * @param unicornInfo Unicorn attributes
+     * @param name Unicorn name
+     * @return Request body
+     */
     public static String createDescriptionQuery(UnicornInfo unicornInfo, String name) {
         String str = String.format(Locale.US,"Generera en beskrivning från en encyklopedi av en sorts enhörning som heter %s." +
                         " Enhörningen har följande attribut: Färg: %s, hornet är %s." +
@@ -41,10 +57,17 @@ public class Utils {
 
     }
 
+    /**
+     * Constructs a request body that contains a query for an image of a unicorn based on its attributes.
+     * The body is constructed to meet OpenAI specifications.
+     * @param info Unicorn attributes
+     * @param name Unicorn name
+     * @return Request body
+     */
     public static String createImageQuery(UnicornInfo info, String name) {
         String str = String.format("A photograph in the style of fantasy photography of a specific type of unicorn called %s " +
-                "with %s colored mane and a horn that is %s. The background is the landscape of %s"
-                , name, info.color, info.horn, info.spottedWhere.name);
+                "with %s colored mane and a horn that is %s. The background is the landscape of %s",
+                name, info.color, info.horn, info.spottedWhere.name);
         return String.format("""
                 {
                    "prompt": "%s",
@@ -54,10 +77,16 @@ public class Utils {
                 """, str);
     }
 
+    /**
+     * Constructs a request body that contains a query for 2 images of a unicorn based on its description and location.
+     * The body is constructed to meet OpenAI specifications.
+     * @param unicorn Unicorn information
+     * @return Request Body
+     */
     public static String createMultiImageQuery(Unicorn unicorn) {
         String str = String.format("A photograph in the style of fantasy photography of a specific type of unicorn called %s " +
-                        "with the description: %s. The background is the landscape of %s"
-                , unicorn.name, unicorn.description, unicorn.spottedWhere.name);
+                        "with the description: %s. The background is the landscape of %s",
+                unicorn.name, unicorn.description, unicorn.spottedWhere.name);
         return String.format("""
                 {
                    "prompt": "%s",
@@ -67,6 +96,10 @@ public class Utils {
                 """, str);
     }
 
+    /**
+     * Validates that a UnicornNoID object contains all necessary information.
+     * @param unicorn Unicorn information.
+     */
     public static void unicornPostValidator(UnicornNoID unicorn) {
         StringBuilder sb = new StringBuilder();
         if (unicorn.name.isEmpty()) sb.append("Name is missing\n");
@@ -87,6 +120,10 @@ public class Utils {
         }
     }
 
+    /**
+     * Validates that a UnicornInfo object contains all necessary information.
+     * @param info Unicorn information.
+     */
     public static void unicornInfoValidator(UnicornInfo info) {
         StringBuilder sb = new StringBuilder();
         if (info.color.isEmpty()) sb.append("Color is missing\n");

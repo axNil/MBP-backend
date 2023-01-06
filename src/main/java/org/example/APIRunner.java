@@ -10,7 +10,10 @@ import org.example.beans.Unicorn;
 import java.io.IOException;
 import java.util.List;
 
-
+/**
+ * Middlehand where requests are being funneled out to different services and where all the error handling
+ * is being executed.
+ */
 public class APIRunner {
     private UnicornCaller uc;
     private OpenAICaller oc;
@@ -19,7 +22,6 @@ public class APIRunner {
         oc = new OpenAICaller();
         uc = new UnicornCaller();
     }
-
 
     public void getAllUnicorns(Context ctx) {
         try {

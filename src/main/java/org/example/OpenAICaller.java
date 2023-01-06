@@ -4,7 +4,6 @@ import apikey.APIKey;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import org.apache.http.HttpEntity;
@@ -20,6 +19,10 @@ import org.example.beans.UnicornNoID;
 
 import java.io.*;
 
+/**
+ * Serves as the closest connection to OpenAI.
+ * This is where all the requests for OpenAI are being executed.
+ */
 public class OpenAICaller {
     private final String textUrl;
     private final String imageUrl;
@@ -31,10 +34,17 @@ public class OpenAICaller {
         gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
     }
 
-    public UnicornNoID searchUnicorn(String message) throws IllegalStateException, IOException, JsonSyntaxException {
+    /**
+     * Creates a new unicorn based on the information from the client.
+     * A name is first created then it is used in the request for a unicorn description.
+     * Lastly it requests a picture based on the description.
+     * @param body Information passed in from the client.
+     * @return Unicorn without an ID.
+     */
+    public UnicornNoID searchUnicorn(String body) throws IllegalStateException, IOException, JsonSyntaxException {
         UnicornNoID unicorn = new UnicornNoID();
 
-        UnicornInfo info = gson.fromJson(message, UnicornInfo.class);
+        UnicornInfo info = gson.fromJson(body, UnicornInfo.class);
 
         //Validate that all fields exists
         Utils.unicornInfoValidator(info);
@@ -62,6 +72,11 @@ public class OpenAICaller {
         return unicorn;
     }
 
+    /**
+     * Requests two images based on the description passed in from the client.
+     * @param message Constructed request based on information from client.
+     * @return Array of image urls
+     */
     public ImageUrl[] getMultipleImages(String message) throws IOException {
         ImageUrl[] imgUrls;
         int amountOfImages = 2;
@@ -102,6 +117,11 @@ public class OpenAICaller {
         }
     }
 
+    /**
+     * Requests text from OpenAI and handles the response.
+     * @param message Constructed request message based on information from client.
+     * @return Text constructed by OpenAI
+     */
     private String getText(String message) throws IOException {
         HttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(textUrl);
@@ -133,6 +153,11 @@ public class OpenAICaller {
         }
     }
 
+    /**
+     * Requests a single image from Dall-E2.
+     * @param message Constructed request message based on description of a unicorn.
+     * @return Image url
+     */
     private String getImage(String message) throws IOException {
         HttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost(imageUrl);
