@@ -29,7 +29,7 @@ import java.util.List;
 
 public class UnicornCaller {
     private Gson gson;
-    String url;
+    private String url;
 
     public UnicornCaller() {
         gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
@@ -37,96 +37,64 @@ public class UnicornCaller {
     }
 
     public List<SmallBoy> getAll() throws IllegalStateException, IOException, JsonSyntaxException, JsonIOException {
-        List<SmallBoy> unicorns = new ArrayList<>();
-
-        HttpClient httpclient = null;
-        HttpGet httpGet = null;
-        HttpResponse response = null;
-        StatusLine status = null;
-        HttpEntity entity = null;
-        InputStream data = null;
-        Reader reader = null;
-
-        SmallBoy unicorn = null;
+        List<SmallBoy> unicorns;
         Type type = new TypeToken<ArrayList<SmallBoy>>() {
         }.getType();
 
-        httpclient = HttpClients.createDefault();
-        httpGet = new HttpGet(url);
+        HttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Accept", "application/json");
-        response = httpclient.execute(httpGet);
-        status = response.getStatusLine();
+        HttpResponse response = httpclient.execute(httpGet);
+        StatusLine status = response.getStatusLine();
 
         if (status.getStatusCode() == 200) {
-            entity = response.getEntity();
-            data = entity.getContent();
+            HttpEntity entity = response.getEntity();
+            InputStream data = entity.getContent();
 
-            reader = new InputStreamReader(data);
+            Reader reader = new InputStreamReader(data);
             unicorns = gson.fromJson(reader, type);
-
+            return unicorns;
         } else {
             System.out.println("unicorns getAll failed");
             System.out.println("statuscode: " + status.getStatusCode());
             throw new IOException();
         }
-
-
-        return unicorns;
     }
 
     public Unicorn get(String id) throws IllegalStateException, IOException, JsonSyntaxException, JsonIOException {
-        Unicorn unicorn = new Unicorn();
+        Unicorn unicorn;
 
-        HttpClient httpclient = null;
-        HttpGet httpGet = null;
-        HttpResponse response = null;
-        StatusLine status = null;
-        HttpEntity entity = null;
-        InputStream data = null;
-        Reader reader = null;
-
-    
-        httpclient = HttpClients.createDefault();
-        httpGet = new HttpGet(url + id);
+        HttpClient httpclient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url + id);
         httpGet.addHeader("Accept", "application/json");
-        response = httpclient.execute(httpGet);
-        status = response.getStatusLine();
+        HttpResponse response = httpclient.execute(httpGet);
+        StatusLine status = response.getStatusLine();
 
         if (status.getStatusCode() == 200) {
-            entity = response.getEntity();
-            data = entity.getContent();
+            HttpEntity entity = response.getEntity();
+            InputStream data = entity.getContent();
             
-            reader = new InputStreamReader(data);
+            Reader reader = new InputStreamReader(data);
             unicorn = gson.fromJson(reader, Unicorn.class);
-        
+            return unicorn;
         } else {
             System.out.println("unicorns get failed");
             System.out.println("statuscode: " + status.getStatusCode());
             throw new JsonSyntaxException("Invalid request");
         }
-        return unicorn;
     }
 
     public void post(String body) throws IllegalStateException, IOException, JsonSyntaxException, JsonIOException {
-        HttpClient httpclient = null;
-        HttpPost httpPost = null;
-        HttpResponse response = null;
-        StatusLine status = null;
-        HttpEntity entity = null;
-        InputStream data = null;
-        Reader reader = null;
-        StringEntity stringEntity = null;
-
         //Validate that all fields exists
         Utils.unicornPostValidator(gson.fromJson(body, UnicornNoID.class));
 
-        httpclient = HttpClients.createDefault();
-        httpPost = new HttpPost(url);
-        stringEntity = new StringEntity(body, "UTF-8");
+        HttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(url);
+        StringEntity stringEntity = new StringEntity(body, "UTF-8");
         httpPost.setEntity(stringEntity);
 
-        response = httpclient.execute(httpPost);
-        status = response.getStatusLine();
+        HttpResponse response = httpclient.execute(httpPost);
+        StatusLine status = response.getStatusLine();
 
         if (status.getStatusCode() == 200) {
             System.out.println("post went well");
@@ -134,7 +102,5 @@ public class UnicornCaller {
             System.out.println("unicorns post failed");
             System.out.println("statuscode: " + status.getStatusCode());
         }
-
     }
-
 }

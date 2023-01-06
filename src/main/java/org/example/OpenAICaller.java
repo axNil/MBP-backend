@@ -4,6 +4,8 @@ import apikey.APIKey;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -28,212 +30,137 @@ public class OpenAICaller {
         imageUrl = "https://api.openai.com/v1/images/generations";
         gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
     }
-    public UnicornNoID searchUnicorn(String message) {
-        String name = null;
-        String description = null;
-        String imgUrl = null;
+
+    public UnicornNoID searchUnicorn(String message) throws IllegalStateException, IOException, JsonSyntaxException {
         UnicornNoID unicorn = new UnicornNoID();
 
-        try {
-            UnicornInfo info = gson.fromJson(message, UnicornInfo.class);
+        UnicornInfo info = gson.fromJson(message, UnicornInfo.class);
 
-            String nameQuery = Utils.createNameQuery(info.spottedWhere);
-            name = getText(nameQuery).replace(".", "");
+        //Validate that all fields exists
+        Utils.unicornInfoValidator(info);
 
-            String descriptionQuery = Utils.createDescriptionQuery(info, name);
-            description = getText(descriptionQuery);
+        //Create name
+        String nameQuery = Utils.createNameQuery(info.spottedWhere);
+        String name = getText(nameQuery).replace(".", "");
 
-            String imageQuery = Utils.createImageQuery(info, name);
-            imgUrl = getImage(imageQuery);
-            System.out.println(imgUrl);
+        //Create description
+        String descriptionQuery = Utils.createDescriptionQuery(info, name);
+        String description = getText(descriptionQuery);
 
-            unicorn.name = name;
-            unicorn.description = description;
-            unicorn.image = imgUrl;
-            unicorn.reportedBy = info.reportedBy;
-            unicorn.spottedWhere = info.spottedWhere;
-            unicorn.spottedWhen = info.spottedWhen;
+        //Create image
+        String imageQuery = Utils.createImageQuery(info, name);
+        String imgUrl = getImage(imageQuery);
+//        System.out.println(imgUrl);
 
-        } catch (Exception e) {
-            //TODO: mer specifik catch
-            e.printStackTrace();
-        }
+        unicorn.name = name;
+        unicorn.description = description;
+        unicorn.image = imgUrl;
+        unicorn.reportedBy = info.reportedBy;
+        unicorn.spottedWhere = info.spottedWhere;
+        unicorn.spottedWhen = info.spottedWhen;
+
         return unicorn;
     }
 
-    public static void main(String[] args) {
-        OpenAICaller oc = new OpenAICaller();
-        long start = System.currentTimeMillis();
-        UnicornInfo info = new UnicornInfo("Svart", "Långt, vitt och lekfullt", 66.252263, 19.048576, "Norrbottens län, Sverige", "Sarkastisk och sömnig");
-        String name = oc.getText(Utils.createNameQuery(info.spottedWhere));
-        String in = Utils.createDescriptionQuery(info, name);
-        String desc = oc.getText(in);
-        String ur = oc.getImage(Utils.createImageQuery(info, name));
-        System.out.println("name: " + name);
-        System.out.println("desc: " + desc);
-        System.out.println("url: " + ur);
-        System.out.println((System.currentTimeMillis()-start)/1000);
-    }
-
-    public ImageUrl[] getMultipleImages(String message) {
-        HttpClient httpclient = null;
-        HttpPost httpPost = null;
-        HttpResponse response = null;
-        StatusLine status = null;
-        HttpEntity entity = null;
-        InputStream data = null;
-        Reader reader = null;
+    public ImageUrl[] getMultipleImages(String message) throws IOException {
         ImageUrl[] imgUrls;
         int amountOfImages = 2;
 
-        try {
-            httpclient = HttpClients.createDefault();
-            httpPost = new HttpPost(imageUrl);
-            httpPost.addHeader("Content-Type", "application/json");
-            httpPost.addHeader("Authorization", "Bearer " + APIKey.APIKEY);
-            httpPost.setEntity(new StringEntity(message, "UTF-8"));
-            response = httpclient.execute(httpPost);
-            status = response.getStatusLine();
-            imgUrls = new ImageUrl[amountOfImages];
-            if (status.getStatusCode() == 200) {
-                entity = response.getEntity();
-                data = entity.getContent();
+        HttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(imageUrl);
+        httpPost.addHeader("Content-Type", "application/json");
+        httpPost.addHeader("Authorization", "Bearer " + APIKey.APIKEY);
+        httpPost.setEntity(new StringEntity(message, "UTF-8"));
+        HttpResponse response = httpclient.execute(httpPost);
+        StatusLine status = response.getStatusLine();
+        imgUrls = new ImageUrl[amountOfImages];
 
-                try {
-                    reader = new InputStreamReader(data);
-                    JsonReader jr = gson.newJsonReader(reader);
-                    jr.beginObject();
-                    for (int i = 0; i < 3; i++) {
-                        jr.skipValue();
-                    }
-                    jr.beginArray();
-                    for (int i = 0; i < amountOfImages; i++) {
-                        jr.beginObject();
-                        jr.skipValue();
-                        imgUrls[i] = new ImageUrl(jr.nextString().trim());
-                        jr.endObject();
-                    }
-                    return imgUrls;
+        if (status.getStatusCode() == 200) {
+            HttpEntity entity = response.getEntity();
+            InputStream data = entity.getContent();
 
-                }   catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("Jsonfail with openai getMultipleImage");
-                }
-            } else {
-                System.out.println("openai getMultipleImage failed");
-                System.out.println("statuscode: " + status.getStatusCode());
+            Reader reader = new InputStreamReader(data);
+            JsonReader jr = gson.newJsonReader(reader);
+
+            jr.beginObject();
+            for (int i = 0; i < 3; i++) {
+                jr.skipValue();
+            }
+            jr.beginArray();
+            for (int i = 0; i < amountOfImages; i++) {
+                jr.beginObject();
+                jr.skipValue();
+                imgUrls[i] = new ImageUrl(jr.nextString().trim());
+                jr.endObject();
             }
 
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            return imgUrls;
+        } else {
+            System.out.println("openai getMultipleImage failed");
+            System.out.println("statuscode: " + status.getStatusCode());
+            throw new IOException();
         }
-        return null;
     }
 
-    private String getText(String message) {
+    private String getText(String message) throws IOException {
+        HttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(textUrl);
+        httpPost.addHeader("Content-Type", "application/json");
+        httpPost.addHeader("Authorization", "Bearer " + APIKey.APIKEY);
+        httpPost.setEntity(new StringEntity(message, "UTF-8"));
+        HttpResponse response = httpclient.execute(httpPost);
+        StatusLine status = response.getStatusLine();
 
-        HttpClient httpclient = null;
-        HttpPost httpPost = null;
-        HttpResponse response = null;
-        StatusLine status = null;
-        HttpEntity entity = null;
-        InputStream data = null;
-        Reader reader = null;
+        if (status.getStatusCode() == 200) {
+            HttpEntity entity = response.getEntity();
+            InputStream data = entity.getContent();
+            Reader reader = new InputStreamReader(data);
+            JsonReader jr = gson.newJsonReader(reader);
 
-        try {
-            httpclient = HttpClients.createDefault();
-            httpPost = new HttpPost(textUrl);
-            httpPost.addHeader("Content-Type", "application/json");
-            httpPost.addHeader("Authorization", "Bearer " + APIKey.APIKEY);
-            httpPost.setEntity(new StringEntity(message, "UTF-8"));
-            response = httpclient.execute(httpPost);
-            status = response.getStatusLine();
-
-            if (status.getStatusCode() == 200) {
-                entity = response.getEntity();
-                data = entity.getContent();
-
-                try {
-                    reader = new InputStreamReader(data);
-                    JsonReader jr = gson.newJsonReader(reader);
-                    jr.beginObject();
-                    for (int i = 0; i < 9; i++) {
-                        jr.skipValue();
-                    }
-                    jr.beginArray();
-                    jr.beginObject();
-                    jr.skipValue();
-                    return jr.nextString().trim();
-
-                }   catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("Jsonfail with openai getname");
-                }
-            } else {
-                System.out.println("openai getname failed");
-                System.out.println("statuscode: " + status.getStatusCode());
+            jr.beginObject();
+            for (int i = 0; i < 9; i++) {
+                jr.skipValue();
             }
+            jr.beginArray();
+            jr.beginObject();
+            jr.skipValue();
 
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            return jr.nextString().trim();
+        } else {
+            System.out.println("openai getText failed");
+            System.out.println("statuscode: " + status.getStatusCode());
+            throw new IOException();
         }
-        return "";
     }
 
-    private String getImage(String message) {
-        HttpClient httpclient = null;
-        HttpPost httpPost = null;
-        HttpResponse response = null;
-        StatusLine status = null;
-        HttpEntity entity = null;
-        InputStream data = null;
-        Reader reader = null;
+    private String getImage(String message) throws IOException {
+        HttpClient httpclient = HttpClients.createDefault();
+        HttpPost httpPost = new HttpPost(imageUrl);
+        httpPost.addHeader("Content-Type", "application/json");
+        httpPost.addHeader("Authorization", "Bearer " + APIKey.APIKEY);
+        httpPost.setEntity(new StringEntity(message, "UTF-8"));
+        HttpResponse response = httpclient.execute(httpPost);
+        StatusLine status = response.getStatusLine();
 
-        try {
-            httpclient = HttpClients.createDefault();
-            httpPost = new HttpPost(imageUrl);
-            httpPost.addHeader("Content-Type", "application/json");
-            httpPost.addHeader("Authorization", "Bearer " + APIKey.APIKEY);
-            httpPost.setEntity(new StringEntity(message, "UTF-8"));
-            response = httpclient.execute(httpPost);
-            status = response.getStatusLine();
+        if (status.getStatusCode() == 200) {
+            HttpEntity entity = response.getEntity();
+            InputStream data = entity.getContent();
+            Reader reader = new InputStreamReader(data);
+            JsonReader jr = gson.newJsonReader(reader);
 
-            if (status.getStatusCode() == 200) {
-                entity = response.getEntity();
-                data = entity.getContent();
-
-                try {
-                    reader = new InputStreamReader(data);
-                    JsonReader jr = gson.newJsonReader(reader);
-                    jr.beginObject();
-                    for (int i = 0; i < 3; i++) {
-                        jr.skipValue();
-                    }
-                    jr.beginArray();
-                    jr.beginObject();
-                    jr.skipValue();
-                    return jr.nextString().trim();
-
-                }   catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("Jsonfail with openai getImage");
-                }
-            } else {
-                System.out.println("openai getimage failed");
-                System.out.println("statuscode: " + status.getStatusCode());
+            jr.beginObject();
+            for (int i = 0; i < 3; i++) {
+                jr.skipValue();
             }
+            jr.beginArray();
+            jr.beginObject();
+            jr.skipValue();
 
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            return jr.nextString().trim();
+        } else {
+            System.out.println("openai getimage failed");
+            System.out.println("statuscode: " + status.getStatusCode());
+            throw new IOException();
         }
-        return "";
     }
-
-
 }

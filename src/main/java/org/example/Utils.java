@@ -86,4 +86,24 @@ public class Utils {
             throw new JsonSyntaxException(sb.toString());
         }
     }
+
+    public static void unicornInfoValidator(UnicornInfo info) {
+        StringBuilder sb = new StringBuilder();
+        if (info.color.isEmpty()) sb.append("Color is missing\n");
+        if (info.horn.isEmpty()) sb.append("Horn description is missing\n");
+        if (info.reportedBy.isEmpty()) sb.append("Reported by is missing\n");
+        if (info.behaviour.isEmpty()) sb.append("Behaviour description is missing\n");
+        if (info.spottedWhere.name.isEmpty()) sb.append("Location name is missing\n");
+        if (info.spottedWhere.lon < -180.0 || info.spottedWhere.lon > 180.0) sb.append("Longitude is invalid\n");
+        if (info.spottedWhere.lat < -90.0 || info.spottedWhere.lat > 90.0) sb.append("Latitude is invalid\n");
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        try {
+            df.parse(info.spottedWhen);
+        } catch (DateTimeParseException e) {
+            sb.append("Invalid or missing date");
+        }
+        if (!sb.isEmpty()) {
+            throw new JsonSyntaxException(sb.toString());
+        }
+    }
 }
