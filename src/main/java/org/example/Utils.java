@@ -84,9 +84,11 @@ public class Utils {
      * @return Request Body
      */
     public static String createMultiImageQuery(Unicorn unicorn) {
+        int len = Math.min(700, unicorn.description.length());
         String str = String.format("A photograph in the style of fantasy photography of a specific type of unicorn called %s " +
                         "with the description: %s. The background is the landscape of %s",
-                unicorn.name, unicorn.description, unicorn.spottedWhere.name);
+                unicorn.name, unicorn.description.substring(0,len), unicorn.spottedWhere.name);
+        str = str.replace("\n", " ");
         return String.format("""
                 {
                    "prompt": "%s",
