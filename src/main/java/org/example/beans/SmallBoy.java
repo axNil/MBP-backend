@@ -5,7 +5,6 @@ public class SmallBoy {
     public String name = "";
     public String details = "";
     SmallBoy() {}
-
     @Override
     public String toString() {
         return String.format("%s, %s, %d", name, details, id);

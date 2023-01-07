@@ -40,7 +40,7 @@ public class UnicornCaller {
 
     /**
      * Fetches a small amount of information about all the unicorns currently in the database.
-     * @return list of unicornobjects with reduced amount of information.
+     * @return list of unicornobjects containing an url to a specific unicorn, its name and its id.
      */
     public List<SmallBoy> getAll() throws IllegalStateException, IOException, JsonSyntaxException, JsonIOException {
         List<SmallBoy> unicorns;

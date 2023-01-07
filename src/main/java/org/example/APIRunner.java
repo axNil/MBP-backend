@@ -23,6 +23,10 @@ public class APIRunner {
         uc = new UnicornCaller();
     }
 
+    /**
+     * Calls the Unicorn caller and converts the urls to ours. Marshalls the list of objects to JSON.
+     * @param ctx Context object connected to the caller.
+     */
     public void getAllUnicorns(Context ctx) {
         try {
             List<SmallBoy> smallBoys = uc.getAll();
@@ -44,6 +48,10 @@ public class APIRunner {
         }
     }
 
+    /**
+     * Fetches a Unicorn object from the Unicorn caller and marshalls it to JSON and returns it to the caller
+     * @param ctx Context object containing an id as its path parameter.
+     */
     public void getUnicorn(Context ctx) {
         try {
             ctx.json(uc.get(ctx.pathParam("id")));
@@ -62,6 +70,10 @@ public class APIRunner {
         }
     }
 
+    /**
+     * Calls the Unicorn caller and posts a unicorn to Johans database.
+     * @param ctx Context object containing all the fields in the UnicornNoId class in its body.
+     */
     public void postUnicorn(Context ctx) {
         try {
             uc.post(ctx.body());
@@ -80,6 +92,10 @@ public class APIRunner {
         }
     }
 
+    /**
+     * Calls the OpenAI caller and returns a unicorn without id through the Context object
+     * @param ctx Context object containing the attributes in the UnicornInfo class in its body.
+     */
     public void searchUnicorn(Context ctx) {
         try {
             ctx.json(oc.searchUnicorn(ctx.body()));
@@ -98,6 +114,11 @@ public class APIRunner {
         }
     }
 
+    /**
+     * Calls the Unicorn Caller to fetch a Unicorn from Johans database and uses it to call the OpenAPI caller
+     * that generates an array of urls that is returned to the caller through the Context object
+     * @param ctx Context object containing an id as its path parameter.
+     */
     public void getMorePictures(Context ctx) {
         try {
             Unicorn unicorn = uc.get(ctx.pathParam("id"));

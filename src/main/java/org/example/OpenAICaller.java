@@ -38,7 +38,7 @@ public class OpenAICaller {
      * Creates a new unicorn based on the information from the client.
      * A name is first created then it is used in the request for a unicorn description.
      * Lastly it requests a picture based on the description.
-     * @param body Information passed in from the client.
+     * @param body Information passed in from the client, to convert to object from json through marshalling.
      * @return Unicorn without an ID.
      */
     public UnicornNoID searchUnicorn(String body) throws IllegalStateException, IOException, JsonSyntaxException {
@@ -60,7 +60,6 @@ public class OpenAICaller {
         //Create image
         String imageQuery = Utils.createImageQuery(info, name);
         String imgUrl = getImage(imageQuery);
-//        System.out.println(imgUrl);
 
         unicorn.name = name;
         unicorn.description = description;
@@ -156,7 +155,7 @@ public class OpenAICaller {
     /**
      * Requests a single image from Dall-E2.
      * @param message Constructed request message based on description of a unicorn.
-     * @return Image url
+     * @return Image url depicting a unicorn.
      */
     private String getImage(String message) throws IOException {
         HttpClient httpclient = HttpClients.createDefault();
