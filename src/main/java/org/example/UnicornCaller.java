@@ -115,6 +115,7 @@ public class UnicornCaller {
             System.out.println("post went well");
         } else {
             System.out.println("unicorns post failed");
+            System.out.println(body);
             System.out.println("statuscode: " + status.getStatusCode());
         }
     }

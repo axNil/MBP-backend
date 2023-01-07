@@ -112,6 +112,7 @@ public class OpenAICaller {
         } else {
             System.out.println("openai getMultipleImage failed");
             System.out.println("statuscode: " + status.getStatusCode());
+            System.out.println(message);
             throw new IOException();
         }
     }
