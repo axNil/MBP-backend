@@ -45,6 +45,5 @@ public class Server {
             System.out.println("Unicorn search was performed");
             runner.searchUnicorn(ctx);
         });
-
     }
 }
