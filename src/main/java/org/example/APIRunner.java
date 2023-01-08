@@ -120,10 +120,21 @@ public class APIRunner {
      * @param ctx Context object containing an id as its path parameter.
      */
     public void getMorePictures(Context ctx) {
+        Unicorn unicorn = null;
         try {
-            Unicorn unicorn = uc.get(ctx.pathParam("id"));
+            unicorn = uc.get(ctx.pathParam("id"));
             ctx.json(oc.getMultipleImages(Utils.createMultiImageQuery(unicorn)));
-        } catch (IllegalStateException | IOException | JsonIOException e) {
+        } catch (IOException e) {
+            try {
+                System.out.println("Initiating backup sequence");
+                ctx.json(oc.getMultipleImages(Utils.createMultiImageQueryBackup(unicorn)));
+                System.out.println("Backup sequence successful");
+            } catch (IOException | NullPointerException q) {
+                System.out.println("Backup sequence failed");
+                ctx.status(500);
+                ctx.json(new Error("Server no compute"));
+            }
+        } catch (IllegalStateException | JsonIOException e) {
             ctx.status(500);
             ctx.json(new Error("Server no compute"));
         } catch (JsonSyntaxException e) {

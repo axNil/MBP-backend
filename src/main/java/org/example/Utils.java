@@ -99,6 +99,23 @@ public class Utils {
     }
 
     /**
+     * Backup if OpenAI rejects the query from {@link #createMultiImageQuery(Unicorn) createMultiImageQuery}
+     */
+    public static String createMultiImageQueryBackup(Unicorn unicorn) {
+        String str = String.format("A photograph in the style of fantasy photography of a specific type of unicorn called %s " +
+                        ". The background is the landscape of %s",
+                unicorn.name, unicorn.spottedWhere.name);
+        str = str.replace("\n", " ");
+        return String.format("""
+                {
+                   "prompt": "%s",
+                   "n": 2,
+                   "size": "512x512"
+                 }
+                """, str);
+    }
+
+    /**
      * Validates that a UnicornNoID object contains all necessary information.
      * @param unicorn Unicorn information.
      */
